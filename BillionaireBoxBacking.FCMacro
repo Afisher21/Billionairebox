@@ -1,0 +1,25 @@
+import os
+import sys
+import importlib.util
+
+
+macro_dir = os.path.dirname(__file__)
+if macro_dir and macro_dir not in sys.path:
+    sys.path.insert(0, macro_dir)
+
+
+builder_path = os.path.join(macro_dir, "freecad_backing_builder.py")
+if not os.path.exists(builder_path):
+    raise FileNotFoundError(
+        f"Could not find freecad_backing_builder.py next to the macro. Expected: {builder_path}"
+    )
+
+spec = importlib.util.spec_from_file_location("freecad_backing_builder", builder_path)
+module = importlib.util.module_from_spec(spec)
+sys.modules["freecad_backing_builder"] = module
+spec.loader.exec_module(module)
+
+print(f"Loaded builder from: {builder_path}")
+
+
+module.build()
